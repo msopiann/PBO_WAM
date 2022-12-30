@@ -2,15 +2,49 @@ package Game;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
+import java.util.UUID;
 import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.*;
+
 
 /**
  *
  * @author sopian
  */
 public class WhackAMole extends JFrame {
+    private JPanel panel;    
+    private JLabel[] holes = new JLabel[16];
+    private int[] board = new int[16];
 
+    private int score = 0;
+    private int timeLeft = 10;
+    private int highscore = 0;
+
+    private JLabel lblScore;
+    private JLabel lblTimeLeft;
+    private JLabel lblHighscore;
+    private JLabel leaderboard;
+    private JButton btnStart;
+    private JTextField nametext;
+    private Timer timer;
+    
+    ArrayList<String> listBoard = new ArrayList<String>();
+    ArrayList<String> listName = new ArrayList<String>();
+    
     private Image screenImage;
     private Graphics screenGraphic;						
     private Image background = new ImageIcon(Main.class.getResource("../images/introBackground.jpg")).getImage();
@@ -52,6 +86,12 @@ public class WhackAMole extends JFrame {
     private ImageIcon backButtonBasicImage = new ImageIcon(Main.class.getResource("/images/backButtonBasic.png"));
     private JButton backButton = new JButton(backButtonBasicImage);
 
+    //panel content
+    private JPanel content = new JPanel();    
+    //
+    private JPanel contentList = new JPanel();
+
+    
     //Make the screen move when we drag menu bar
     private int mouseX, mouseY;
 
@@ -62,9 +102,18 @@ public class WhackAMole extends JFrame {
     //make an arraylist that can keep track of the title and music of a track
     ArrayList<Track> trackList = new ArrayList<Track>();
 
-    private Image titleImage;
+    //Title
+    JLabel lblTitle = new JLabel("Whack A Mole");
+    
+    //List nama
+    JList leada;
+    //List score
+    JList leadb;
+
+    private Image startImage;
     private Image selectedImage;
     private Music selectedMusic;
+    private boolean isVisible;
     private Music introMusic = new Music("introMusic.mp3", true);
     private int nowSelected = 0; //index 0 (first track)
 
@@ -76,12 +125,10 @@ public class WhackAMole extends JFrame {
     // object attributes
     public WhackAMole() {
         setUndecorated(true); // when first executed, menubar doesn't show
-        setTitle("Whack a Mole"); // the name of our game becomes "Dynamic Beat"
         setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
         setResizable(false); // user cannot redefine the screen size
         setLocationRelativeTo(null); // when you run the project, the screen will appear right on the centre of the
         // screen
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // need to declare this; otherwise the program continues to run
         // in computer even after we close screen
         setVisible(true); // make the screen visible
         setBackground(new Color(0, 0, 0, 0)); // paintcomponent changes to white
@@ -91,17 +138,17 @@ public class WhackAMole extends JFrame {
         introMusic.start();
 
         //Index 0: Cool-Tobu
-        trackList.add(new Track("Cool Title Image.png", "Cool Start Image.png", "Cool Game Image.png",
+        trackList.add(new Track("Cool Start Image.png", "Cool Game Image.png",
                 "Cool-Tobu Selected.mp3", "Cool-Tobu.mp3"));
 
         //Exit button
         //Notice that the exit button must be declared before menu bar so that it gets placed on top of the menu bar
+        add(exitButton);
         exitButton.setBounds(1245, 0, 30, 30); //put exit button on the rightmost side of the menu bar
         exitButton.setBorderPainted(false); //need to set JButton so that it fits our button image
         exitButton.setContentAreaFilled(false);
         exitButton.setFocusPainted(false);
         exitButton.addMouseListener(new MouseAdapter() {
-            //@Override
             //When mouse is on top of the exit button
             public void mouseEntered(MouseEvent e) {
                 exitButton.setIcon(exitButtonEnteredImage);
@@ -118,41 +165,29 @@ public class WhackAMole extends JFrame {
             //When exit button is pressed
 
             public void mousePressed(MouseEvent e) {
-                Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
-                buttonEnteredMusic.start();
-                //In order to prevent music not being heard (becaue the program exits immediately, make it so that the program 
-                //terminates 1 sec later the music plays
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
                 System.exit(0); //exit the game
             }
         });
-        add(exitButton);
 
         //Start Button
+        add(startButton);
         startButton.setBounds(200, 600, 400, 100);
         startButton.setBorderPainted(false);
-        startButton.setContentAreaFilled(false);
-        startButton.setFocusPainted(false);
         startButton.addMouseListener(new MouseAdapter() {
-            //@Override
             public void mouseEntered(MouseEvent e) {
                 startButton.setIcon(startButtonEnteredImage);
                 startButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //change the icon of the mouse cursor 
                 Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //play only once
                 buttonEnteredMusic.start();
             }
+            
             //When mouse gets out of the start button
-
             public void mouseExited(MouseEvent e) {
                 startButton.setIcon(startButtonBasicImage);
                 startButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
+            
             //When button is pressed
-
             public void mousePressed(MouseEvent e) {
                 Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
                 buttonEnteredMusic.start();
@@ -160,9 +195,9 @@ public class WhackAMole extends JFrame {
                 enterMain();
             }
         });
-        add(startButton);
 
         //Quit Button
+        add(quitButton);
         quitButton.setBounds(700, 600, 400, 100);
         quitButton.setBorderPainted(false);
         quitButton.setContentAreaFilled(false);
@@ -186,17 +221,12 @@ public class WhackAMole extends JFrame {
             public void mousePressed(MouseEvent e) {
                 Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
                 buttonEnteredMusic.start();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
                 System.exit(0); //exit the game
             }
         });
-        add(quitButton);
         
         //Easy Button
+        add(easyButton);
         easyButton.setVisible(false);
         easyButton.setBounds(200, 580, 250, 67);
         easyButton.setBorderPainted(false);
@@ -224,9 +254,8 @@ public class WhackAMole extends JFrame {
 
             }
         });
-        add(easyButton);
         
-        //Easy Button
+        //Normal Button
         normalButton.setVisible(false);
         normalButton.setBounds(500, 580, 250, 67);
         normalButton.setBorderPainted(false);
@@ -246,10 +275,10 @@ public class WhackAMole extends JFrame {
                 normalButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
 
-            public void mousePressed(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {    
                 Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
                 buttonEnteredMusic.start();
-                //Normal Button Event
+//                //Normal Button Event
                 gameStart(nowSelected, "normal");
 
             }
@@ -336,14 +365,156 @@ public class WhackAMole extends JFrame {
         });
         add(menuBar); // adds menubar to jframe
 
+        content.setVisible(false);
+        content.setBackground(new Color(0, 102, 0));
+        content.setBounds(32, 150, 525, 525);
+        content.setLayout(null);
+        content.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
+        loadImage("../res/hammer.png").getImage(),
+        new Point(0,0),"custom cursor1"));
+        
+        add(contentList);
+        contentList.setBackground(new Color(0, 102, 0));
+        contentList.setVisible(false);
+        contentList.setBounds(600, 150, 140, 200);
+        contentList.setLayout(null);
+//
+        holes[0] = new JLabel("0");
+        holes[0].setName("0");
+        holes[0].setBounds(0, 396, 132, 132);
+        content.add(holes[0]);
+//
+        holes[1] = new JLabel("1");
+        holes[1].setName("1");
+        holes[1].setBounds(132, 396, 132, 132);
+        content.add(holes[1]);
+//
+        holes[2] = new JLabel("2");
+        holes[2].setName("2");
+        holes[2].setBounds(264, 396, 132, 132);
+        content.add(holes[2]);
+//
+        holes[3] = new JLabel("3");
+        holes[3].setName("3");
+        holes[3].setBounds(396, 396, 132, 132);
+        content.add(holes[3]);
+
+        holes[4] = new JLabel("4");
+        holes[4].setName("4");
+        holes[4].setBounds(0, 264, 132, 132);
+        content.add(holes[4]);
+
+        holes[5] = new JLabel("5");
+        holes[5].setName("5");
+        holes[5].setBounds(132, 264, 132, 132);
+        content.add(holes[5]);
+
+        holes[6] = new JLabel("6");
+        holes[6].setName("6");
+        holes[6].setBounds(264, 264, 132, 132);
+        content.add(holes[6]);
+
+        holes[7] = new JLabel("7");
+        holes[7].setName("7");
+        holes[7].setBounds(396, 264, 132, 132);
+        content.add(holes[7]);
+
+        holes[8] = new JLabel("8");
+        holes[8].setName("8");
+        holes[8].setBounds(0, 132, 132, 132);
+        content.add(holes[8]);
+
+        holes[9] = new JLabel("9");
+        holes[9].setName("9");
+        holes[9].setBounds(132, 132, 132, 132);
+        content.add(holes[9]);
+
+        holes[10] = new JLabel("10");
+        holes[10].setName("10");
+        holes[10].setBounds(264, 132, 132, 132);
+        content.add(holes[10]);
+
+        holes[11] = new JLabel("11");
+        holes[11].setName("11");
+        holes[11].setBounds(396, 132, 132, 132);
+        content.add(holes[11]);
+
+        holes[12] = new JLabel("12");
+        holes[12].setName("12");
+        holes[12].setBounds(0, 0, 132, 132);
+        content.add(holes[12]);
+
+        holes[13] = new JLabel("13");
+        holes[13].setName("13");
+        holes[13].setBounds(132, 0, 132, 132);
+        content.add(holes[13]);
+
+        holes[14] = new JLabel("14");
+        holes[14].setName("14");
+        holes[14].setBounds(264, 0, 132, 132);
+        content.add(holes[14]);
+
+        holes[15] = new JLabel("15");
+        holes[15].setName("15");
+        holes[15].setBounds(396, 0, 132, 132);
+        content.add(holes[15]);
+        add(content);
+//
+        lblScore = new JLabel("Score: 0");
+        lblScore.setVisible(false);
+        lblScore.setHorizontalAlignment(SwingConstants.TRAILING);
+        lblScore.setFont(new Font("Cambria", Font.BOLD, 14));
+        lblScore.setForeground(new Color(135, 206, 250));
+        lblScore.setBounds(417, 80, 144, 33);
+        add(lblScore);
+//
+        lblTimeLeft = new JLabel("0");
+        lblTimeLeft.setVisible(false);
+        lblTimeLeft.setHorizontalAlignment(SwingConstants.CENTER);
+        lblTimeLeft.setForeground(new Color(240, 128, 128));
+        lblTimeLeft.setFont(new Font("Cambria Math", Font.BOLD, 24));
+        lblTimeLeft.setBounds(232, 80, 144, 33);
+        add(lblTimeLeft);
+//
+        lblHighscore = new JLabel("Highscore");
+        lblHighscore.setVisible(false);
+        lblHighscore.setHorizontalAlignment(SwingConstants.TRAILING);
+        lblHighscore.setForeground(new Color(255, 255, 0));
+        lblHighscore.setFont(new Font("Cambria", Font.BOLD, 14));
+        lblHighscore.setBounds(528, 100, 134, 33);
+        add(lblHighscore);
+//        
+        leada = new JList(listName.toArray());
+        leada.setVisible(false);
+        leada.setSize(100, 500);
+        leada.setBounds(0, 0, 90, 400);
+        contentList.add(leada);
+//        
+        leadb = new JList(listBoard.toArray());
+        leadb.setVisible(false);
+        leadb.setSize(100, 500);
+        leadb.setBounds(90, 0, 50, 400);
+        contentList.add(leadb);
+//
+        btnStart = new JButton("Start");
+        btnStart.setBackground(Color.WHITE);
+        btnStart.setBounds(250, 110, 110, 33);
+        btnStart.setVisible(false);
+        add(btnStart);
+//        
+        nametext = new JTextField("nama");
+        nametext.setVisible(false);
+        nametext.setBackground(Color.WHITE);
+        nametext.setBounds(480, 120, 80, 20);
+        add(nametext);
+//
+//        setContentPane(content);
     }
 
     // Methods
     // 1) Paint method
-    // Extend JFrame class to create your own frame class so that you can override
-    // the paint() method.
-    // The paint() method provides you a Graphics object, which will give you
-    // utility methods to draw various types of graphics.
+    // Extend JFrame class to create your own frame class so that you can override the paint() method.
+    // The paint() method provides you a Graphics object, which will give you utility methods to draw various types of graphics.
     // The paint() method is inherited by JFrame class from the Component class. It
     // will be called whenever this component should be painted.
     public void paint(Graphics g) {
@@ -358,8 +529,7 @@ public class WhackAMole extends JFrame {
     public void screenDraw(Graphics g) {
         g.drawImage(background, 0, 0, null); //generally, we use drawImage to draw moving images
         if (isMainScreen) {
-            g.drawImage(selectedImage, 340, 100, null);
-            g.drawImage(titleImage, 340, 70, null);
+            g.drawImage(startImage, 340, 70, null);
         }
         paintComponents(g); // draws the images in the screen image (menubar stays constant; doesn't change. therefore use paintcomponent not drawimage), draws all the "add()" components
         this.repaint(); // calling the paint method again
@@ -374,10 +544,36 @@ public class WhackAMole extends JFrame {
             selectedMusic.close();
         }
         //change titleImage and selectedImage to the one that corresponds to the selected track
-        titleImage = new ImageIcon(Main.class.getResource("/images/" + trackList.get(nowSelected).getTitleImage())).getImage(); //get value of the TitleImage
-        selectedImage = new ImageIcon(Main.class.getResource("/images/" + trackList.get(nowSelected).getStartImage())).getImage(); //get value of the TitleImage
+        startImage = new ImageIcon(Main.class.getResource("/images/" + trackList.get(nowSelected).getStartImage())).getImage(); //get value of the TitleImage
         selectedMusic = new Music(trackList.get(nowSelected).getStartMusic(), true);
         selectedMusic.start();
+    }
+    
+    public void getListData () {
+        try {        
+            leada.setVisible(true);        
+            leadb.setVisible(true);
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", "");
+            Statement st = con.createStatement();
+            String sql = ("SELECT *FROM scores order by hasil DESC LIMIT 10");
+            ResultSet rs = st.executeQuery(sql);
+            ArrayList<String> hasil = new ArrayList<String>();
+            ArrayList<String> name = new ArrayList<String>();
+            while(rs.next()) { 
+                name.add(rs.getString("name"));   
+                hasil.add(rs.getString("hasil"));                      
+                listBoard.add(rs.getString("hasil"));                    
+                listName.add(rs.getString("name"));
+            }
+            leada.setListData(name.toArray());
+            leada = new JList(name.toArray());
+            leadb.setListData(hasil.toArray());
+            leadb = new JList(hasil.toArray());
+        } catch(Exception ex){
+            leada.setVisible(false);        
+            leadb.setVisible(false);
+        } 
+        return;
     }
 
     //Game Start
@@ -385,12 +581,31 @@ public class WhackAMole extends JFrame {
         if (selectedMusic != null) {
             selectedMusic.close();
         }
+        isVisible = true;
+        if (isVisible) {
+            contentList.setVisible(true);
+            getListData();
+        }
+        clearBoard();
+        if (difficuly == "easy") {
+            initEvents(30);
+        } else if (difficuly == "normal") {
+            initEvents(20);
+        } else {
+            initEvents(10); 
+        }
         isMainScreen = false;
-        easyButton.setVisible(false);
+        easyButton.setVisible(false);   
         normalButton.setVisible(false);
         hardButton.setVisible(false);
-        background = new ImageIcon(Main.class.getResource("../images/" + trackList.get(nowSelected).getGameImage())).getImage();
-        backButton.setVisible(true);
+//        background = new ImageIcon(Main.class.getResource("../images/" + trackList.get(nowSelected).getGameImage())).getImage();
+        backButton.setVisible(true);     
+        content.setVisible(true);
+        lblScore.setVisible(true);
+        lblTimeLeft.setVisible(true);
+        lblHighscore.setVisible(true);
+        btnStart.setVisible(true);
+        nametext.setVisible(true);
     }
 
     //Function to go back to the main screen
@@ -402,6 +617,15 @@ public class WhackAMole extends JFrame {
         background = new ImageIcon(Main.class.getResource("../images/mainBackground.jpg")).getImage();
         backButton.setVisible(false);
         selectTrack(nowSelected);
+        backButton.setVisible(false);     
+        content.setVisible(false);
+        lblScore.setVisible(false);
+        lblTimeLeft.setVisible(false);
+        lblHighscore.setVisible(false);
+        btnStart.setVisible(false);
+        nametext.setVisible(false);
+        isVisible = false;
+        contentList.setVisible(false);
     }
 
     //Game Start Event
@@ -416,5 +640,99 @@ public class WhackAMole extends JFrame {
         introMusic.close();
         selectTrack(0);
     }
+    
+    private ImageIcon loadImage(String path){
+        Image image = new ImageIcon(this.getClass().getResource(path)).getImage();
+        Image scaledImage = image.getScaledInstance(132, 132,  java.awt.Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImage);
+    }
 
+    private void gameOver(){
+        btnStart.setEnabled(true);
+        try{
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", "");
+            Statement state=(Statement) con.createStatement();
+            String name=nametext.getText();
+            //generate unique id
+            String id=UUID.randomUUID().toString();
+            int hasil=score;
+            String insert = "INSERT INTO scores VALUES ('"+ id +"', '"  + name +"',"+ hasil +")";
+            state.executeUpdate(insert);
+        } catch(Exception ex){}
+        if(score > highscore){
+            highscore = score;
+            lblHighscore.setText("Highscore: " + highscore);
+            JOptionPane.showMessageDialog(this, "Your final score is: " + score, "You beat the high score!", JOptionPane.INFORMATION_MESSAGE);
+        }else{
+            JOptionPane.showMessageDialog(this, "Your final score is: " + score, "Game Over!", JOptionPane.INFORMATION_MESSAGE);
+        }
+        score = 0;
+        timeLeft = 0;
+        lblScore.setText("Score: 0");
+        lblTimeLeft.setText("0");
+        clearBoard();
+    }
+
+    private void pressedButton(int id){
+        int val = board[id];
+
+        //if val is 1 = mole
+        //if val is 0 = empty hole
+        if(val==1){ 
+            score++;
+        }else{ //val==0
+            score--;
+        }
+        System.out.println(val);
+        lblScore.setText("Score: " + score); //update the score
+        clearBoard();
+        genRandMole();
+    }
+
+    private void initEvents(int time){
+        timeLeft = time;
+        lblTimeLeft.setText(""+time);
+        for(int i = 0; i < holes.length; i++){
+            holes[i].addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e){
+                    JLabel lbl = (JLabel)e.getSource();
+                    int id = Integer.parseInt(lbl.getName());
+                    pressedButton(id);
+                }
+            });
+        }
+        btnStart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearBoard();
+                genRandMole();
+                timer.start();    
+            }
+        });
+
+        timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if(timeLeft == 0){
+                    lblTimeLeft.setText("" + timeLeft);
+                    timer.stop();
+                    gameOver();
+                }
+                lblTimeLeft.setText("" + timeLeft);
+                timeLeft--;
+            }
+        });
+    }
+    
+    private void clearBoard(){
+        for(int i = 0; i < 16; i++){
+            holes[i].setIcon(loadImage("../res/moleIn.png"));
+            board[i] = 0;
+        }
+    }
+
+    private void genRandMole(){
+        Random rnd = new Random(System.currentTimeMillis()); //seeding random with current time
+        int moleID = rnd.nextInt(16);
+        board[moleID] = 1;
+        holes[moleID].setIcon(loadImage("../res/moleOut.png"));
+    }
 }
