@@ -7,14 +7,11 @@ import java.util.UUID;
 import javax.swing.*;
 import javax.swing.JLabel;
 import javax.swing.Timer;
-import javax.swing.border.*;
-
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.*;
-
 
 /**
  *
