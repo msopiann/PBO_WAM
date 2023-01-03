@@ -2,17 +2,12 @@ package Game;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.UUID;
 import javax.swing.*;
 import javax.swing.JLabel;
 import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 
 
 import java.sql.Connection;
@@ -50,28 +45,28 @@ public class WhackAMole extends JFrame {
     private Image background = new ImageIcon(Main.class.getResource("../images/introBackground.jpg")).getImage();
     private JLabel menuBar = new JLabel(new ImageIcon(Main.class.getResource("../images/menuBar.png")));
 
-    //Buttons	
-    //Exit Button
+    //Tombol	
+    //Tombol Exit
     private ImageIcon exitButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/exitButtonEntered.png"));
     private ImageIcon exitButtonBasicImage = new ImageIcon(Main.class.getResource("/images/exitButtonBasic.png"));
     private JButton exitButton = new JButton(exitButtonBasicImage); //basic default button is exitButtonBasicImage
 
-    //Start Button
+    //Tombol Start
     private ImageIcon startButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/startButtonEntered.png"));
     private ImageIcon startButtonBasicImage = new ImageIcon(Main.class.getResource("/images/startButtonBasic.png"));
     private JButton startButton = new JButton(startButtonBasicImage);
 
-    //Quit Button
+    //Tombol Quit
     private ImageIcon quitButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/quitButtonEntered.png"));
     private ImageIcon quitButtonBasicImage = new ImageIcon(Main.class.getResource("/images/quitButtonBasic.png"));
     private JButton quitButton = new JButton(quitButtonBasicImage);
 
-    //Easy Button
+    //Tombol Easy
     private ImageIcon easyButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/easyButtonEntered.png"));
     private ImageIcon easyButtonBasicImage = new ImageIcon(Main.class.getResource("/images/easyButtonBasic.png"));
     private JButton easyButton = new JButton(easyButtonBasicImage);
     
-    //Normal Button
+    //Tombol Normal
     private ImageIcon normalButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/normalButtonEntered.png"));
     private ImageIcon normalButtonBasicImage = new ImageIcon(Main.class.getResource("/images/normalButtonBasic.png"));
     private JButton normalButton = new JButton(normalButtonBasicImage);
@@ -81,7 +76,7 @@ public class WhackAMole extends JFrame {
     private ImageIcon hardButtonBasicImage = new ImageIcon(Main.class.getResource("/images/hardButtonBasic.png"));
     private JButton hardButton = new JButton(hardButtonBasicImage);
 
-    //Back Button
+    //Tombol Back
     private ImageIcon backButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/backButtonEntered.png"));
     private ImageIcon backButtonBasicImage = new ImageIcon(Main.class.getResource("/images/backButtonBasic.png"));
     private JButton backButton = new JButton(backButtonBasicImage);
@@ -91,15 +86,14 @@ public class WhackAMole extends JFrame {
     //
     private JPanel contentList = new JPanel();
 
-    
-    //Make the screen move when we drag menu bar
+    //Agar dapat dipindahkan layarnya
     private int mouseX, mouseY;
 
-    //Screen
+    //Layar
     private boolean isMainScreen = false; //initially not on main screen therefore false
 
-    //Track class
-    //make an arraylist that can keep track of the title and music of a track
+    //Kelas Track
+    //Membuat arraylist yang dapat tetap menjalankan track sesuai dengan judul dan track yang ditentukan
     ArrayList<Track> trackList = new ArrayList<Track>();
 
     //Title
@@ -117,86 +111,79 @@ public class WhackAMole extends JFrame {
     private Music introMusic = new Music("introMusic.mp3", true);
     private int nowSelected = 0; //index 0 (first track)
 
-    // WhackAMole() is a constructor
-    // Constructor is a method that has the same name as the class
-    // A constructor in Java is a special method that is used to initialize objects.
-    // The constructor is called when
-    // an object of a class is created. It can be used to set initial values for
-    // object attributes
     public WhackAMole() {
-        setUndecorated(true); // when first executed, menubar doesn't show
+        setUndecorated(true); // Menu Bar tidak ditampilkan saat pertama kali dieksekusi
         setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
-        setResizable(false); // user cannot redefine the screen size
-        setLocationRelativeTo(null); // when you run the project, the screen will appear right on the centre of the
-        // screen
-        // in computer even after we close screen
-        setVisible(true); // make the screen visible
-        setBackground(new Color(0, 0, 0, 0)); // paintcomponent changes to white
-        setLayout(null); // button and layout gets located right on spot we declared
-
+        setResizable(false); // User tidak dapat mengatur ulang ukuran layar
+        setLocationRelativeTo(null); // Ketika compile, layar akan ditampilkan di tengah
+        setVisible(true); // Menampilkan layar
+        setBackground(new Color(0, 0, 0, 0)); // mengubah komponen paint menjadi warna putih
+        setLayout(null); 
+        
         // Add intro music
         introMusic.start();
 
-        //Index 0: Cool-Tobu
+        //Index 0: Cool-Tobu (Game Whack a Moles)
         trackList.add(new Track("Cool Start Image.png", "Cool Game Image.png",
                 "Cool-Tobu Selected.mp3", "Cool-Tobu.mp3"));
 
         //Exit button
-        //Notice that the exit button must be declared before menu bar so that it gets placed on top of the menu bar
+        //Ingat bahwa tombol exit harus dideklarasikan sebelum menu bar agar ditempatkan di atas menu bar
         add(exitButton);
-        exitButton.setBounds(1245, 0, 30, 30); //put exit button on the rightmost side of the menu bar
+        exitButton.setBounds(1245, 0, 30, 30); //Menu bar di ujung layar
         exitButton.setBorderPainted(false); //need to set JButton so that it fits our button image
         exitButton.setContentAreaFilled(false);
         exitButton.setFocusPainted(false);
         exitButton.addMouseListener(new MouseAdapter() {
+            
             //When mouse is on top of the exit button
             public void mouseEntered(MouseEvent e) {
                 exitButton.setIcon(exitButtonEnteredImage);
-                exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //change the icon of the mouse cursor 
-                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //play only once
+                exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //Mengubah kursor saat diarahkan ke tombol Exit 
+                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //Putar sekali
                 buttonEnteredMusic.start();
             }
-            //When mouse gets out of the exit button
-
+            
+            //Mengembalikan bentuk kursor seperti semula
             public void mouseExited(MouseEvent e) {
                 exitButton.setIcon(exitButtonBasicImage);
                 exitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
-            //When exit button is pressed
-
+            
+            //Saat tombol Exit ditekan
             public void mousePressed(MouseEvent e) {
                 System.exit(0); //exit the game
             }
         });
 
-        //Start Button
+        //Tombol Start
         add(startButton);
         startButton.setBounds(200, 600, 400, 100);
         startButton.setBorderPainted(false);
         startButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 startButton.setIcon(startButtonEnteredImage);
-                startButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //change the icon of the mouse cursor 
-                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //play only once
+                startButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //Mengubah kursor saat diarahkan ke tombol Start 
+                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //Putar sekali
                 buttonEnteredMusic.start();
             }
             
-            //When mouse gets out of the start button
+            //Mengembalikan bentuk kursor seperti semula
             public void mouseExited(MouseEvent e) {
                 startButton.setIcon(startButtonBasicImage);
                 startButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
             
-            //When button is pressed
+            //Saat tombol Start ditekan
             public void mousePressed(MouseEvent e) {
                 Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
                 buttonEnteredMusic.start();
-                //Start Button Event
+                //Masuk
                 enterMain();
             }
         });
 
-        //Quit Button
+        //Tombol Quit
         add(quitButton);
         quitButton.setBounds(700, 600, 400, 100);
         quitButton.setBorderPainted(false);
@@ -206,20 +193,20 @@ public class WhackAMole extends JFrame {
             //@Override
             public void mouseEntered(MouseEvent e) {
                 quitButton.setIcon(quitButtonEnteredImage);
-                quitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //change the icon of the mouse cursor 
-                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //play only once
+                quitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); //Mengubah kursor saat diarahkan ke tombol Start 
+                Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false); //Putar sekali
                 buttonEnteredMusic.start();
             }
-            //When mouse gets out of the exit button
+            //Mengembalikan bentuk kursor seperti semula
 
             public void mouseExited(MouseEvent e) {
                 quitButton.setIcon(quitButtonBasicImage);
                 quitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
-            //When quit button is pressed
+            //Saat tombol Exit ditekan
 
             public void mousePressed(MouseEvent e) {
-                Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //play only once
+                Music buttonEnteredMusic = new Music("buttonPressedMusic.mp3", false); //Putar sekali
                 buttonEnteredMusic.start();
                 System.exit(0); //exit the game
             }
@@ -370,30 +357,34 @@ public class WhackAMole extends JFrame {
         content.setBounds(32, 150, 525, 525);
         content.setLayout(null);
         content.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
-        loadImage("../res/hammer.png").getImage(),
-        new Point(0,0),"custom cursor1"));
+                
+        //Memasang gambar palu
+        loadImage("../images/hammer.png").getImage(),
+        new Point(0,0),"custom cursor1")
+        );
         
         add(contentList);
         contentList.setBackground(new Color(0, 102, 0));
         contentList.setVisible(false);
         contentList.setBounds(600, 150, 140, 200);
         contentList.setLayout(null);
-//
+
+        // Memasang lubang tikus
         holes[0] = new JLabel("0");
         holes[0].setName("0");
         holes[0].setBounds(0, 396, 132, 132);
         content.add(holes[0]);
-//
+
         holes[1] = new JLabel("1");
         holes[1].setName("1");
         holes[1].setBounds(132, 396, 132, 132);
         content.add(holes[1]);
-//
+
         holes[2] = new JLabel("2");
         holes[2].setName("2");
         holes[2].setBounds(264, 396, 132, 132);
         content.add(holes[2]);
-//
+
         holes[3] = new JLabel("3");
         holes[3].setName("3");
         holes[3].setBounds(396, 396, 132, 132);
@@ -549,13 +540,14 @@ public class WhackAMole extends JFrame {
         selectedMusic.start();
     }
     
+    // Menampilkan data top skor
     public void getListData () {
         try {        
             leada.setVisible(true);        
             leadb.setVisible(true);
-            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", "");
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", ""); // Koneksi ke database
             Statement st = con.createStatement();
-            String sql = ("SELECT *FROM scores order by hasil DESC LIMIT 10");
+            String sql = ("SELECT * FROM scores order by hasil DESC LIMIT 10"); // Meampilkan data maksimal 10
             ResultSet rs = st.executeQuery(sql);
             ArrayList<String> hasil = new ArrayList<String>();
             ArrayList<String> name = new ArrayList<String>();
@@ -576,7 +568,7 @@ public class WhackAMole extends JFrame {
         return;
     }
 
-    //Game Start
+    //Layar utama
     public void gameStart(int nowSelected, String difficuly) {
         if (selectedMusic != null) {
             selectedMusic.close();
@@ -587,18 +579,20 @@ public class WhackAMole extends JFrame {
             getListData();
         }
         clearBoard();
+        
+        // Waktu berdasarkan level
         if (difficuly == "easy") {
-            initEvents(30);
+            initEvents(30); // 30 detik
         } else if (difficuly == "normal") {
-            initEvents(20);
+            initEvents(20); // 20 detik
         } else {
-            initEvents(10); 
+            initEvents(10);  // 10 detik
         }
         isMainScreen = false;
         easyButton.setVisible(false);   
         normalButton.setVisible(false);
         hardButton.setVisible(false);
-//        background = new ImageIcon(Main.class.getResource("../images/" + trackList.get(nowSelected).getGameImage())).getImage();
+        //background = new ImageIcon(Main.class.getResource("../images/" + trackList.get(nowSelected).getGameImage())).getImage();
         backButton.setVisible(true);     
         content.setVisible(true);
         lblScore.setVisible(true);
@@ -608,7 +602,7 @@ public class WhackAMole extends JFrame {
         nametext.setVisible(true);
     }
 
-    //Function to go back to the main screen
+    //Fungsi tombol kembali ke layar utama
     public void backMain() {
         isMainScreen = true;
         easyButton.setVisible(true);
@@ -628,7 +622,7 @@ public class WhackAMole extends JFrame {
         contentList.setVisible(false);
     }
 
-    //Game Start Event
+    //Layar game whack a mole
     public void enterMain() {
         startButton.setVisible(false);
         quitButton.setVisible(false);
@@ -641,23 +635,25 @@ public class WhackAMole extends JFrame {
         selectTrack(0);
     }
     
+    // Memasang path agar dapat disesuaikan dengan folder gambar
     private ImageIcon loadImage(String path){
         Image image = new ImageIcon(this.getClass().getResource(path)).getImage();
         Image scaledImage = image.getScaledInstance(132, 132,  java.awt.Image.SCALE_SMOOTH);
         return new ImageIcon(scaledImage);
     }
 
+    // Game over
     private void gameOver(){
         btnStart.setEnabled(true);
         try{
-            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", "");
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/wam",     "root", ""); //Koneksi ke database
             Statement state=(Statement) con.createStatement();
             String name=nametext.getText();
             //generate unique id
             String id=UUID.randomUUID().toString();
             int hasil=score;
-            String insert = "INSERT INTO scores VALUES ('"+ id +"', '"  + name +"',"+ hasil +")";
-            state.executeUpdate(insert);
+            String insert = "INSERT INTO scores VALUES ('"+ id +"', '"  + name +"',"+ hasil +")"; //Insert data ke tabel score
+            state.executeUpdate(insert); //Eksekusi syntax
         } catch(Exception ex){}
         if(score > highscore){
             highscore = score;
@@ -709,30 +705,34 @@ public class WhackAMole extends JFrame {
             }
         });
 
+        // Waktu game
         timer = new Timer(1000, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                // Kalo waktu abis, game over
                 if(timeLeft == 0){
                     lblTimeLeft.setText("" + timeLeft);
                     timer.stop();
                     gameOver();
                 }
                 lblTimeLeft.setText("" + timeLeft);
-                timeLeft--;
+                timeLeft--; //Sisa waktu
             }
         });
     }
     
+    // Tikus masuk tanah
     private void clearBoard(){
         for(int i = 0; i < 16; i++){
-            holes[i].setIcon(loadImage("../res/moleIn.png"));
+            holes[i].setIcon(loadImage("../images/moleIn.png"));
             board[i] = 0;
         }
     }
 
+    // Tikus muncul secara acak
     private void genRandMole(){
-        Random rnd = new Random(System.currentTimeMillis()); //seeding random with current time
+        Random rnd = new Random(System.currentTimeMillis()); //Menampilkan gambar dengan secara acak sesuai dengan waktu
         int moleID = rnd.nextInt(16);
         board[moleID] = 1;
-        holes[moleID].setIcon(loadImage("../res/moleOut.png"));
+        holes[moleID].setIcon(loadImage("../images/moleOut.png"));
     }
 }

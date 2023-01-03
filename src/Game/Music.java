@@ -30,8 +30,6 @@ public class Music extends Thread {
 	
 	//Methods
 	//Tells the position(time) where the music is currently being played 
-	//Accuracy to 3 decimal points
-	//Will be used when we drop the beat and check to see if the player clicked block on time with the beat
 	public int getTime() {
 		if (player == null)
 			return 0;
