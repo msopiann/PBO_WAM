@@ -5,6 +5,7 @@
 <p>Game Whack a Mole ini dijalankan dengan bahasa Java melalui IDE Netbeans.</p>
 <p>Game ini dikoneksikan dengan MySQL yang digunakan untuk menginputkan nilai skor yang didapatkan melalui memukul Tikus yang keluar dari lubang. Selain itu, SQL ini juga ditujukan untuk menampilan layar top skor.</p>
 
+<h2>Team</h2>
 <p>Tugas ini dibuat oleh kelompok 4 yang beranggotakan:</p>
 <ol>
 <li>Anisa Theryana Putri - 2102208</li>
