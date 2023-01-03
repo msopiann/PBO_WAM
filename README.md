@@ -7,6 +7,7 @@
 
 <h2>Team</h2>
 <p>Tugas ini dibuat oleh kelompok 4 yang beranggotakan:</p>
+
 <ol>
 <li>Anisa Theryana Putri - 2102208</li>
 <li>Muhammad Ahnaf Yafi - 2106092</li>
@@ -15,7 +16,6 @@
 <li>Putri Ade Novianti - 2104777</li>
 <li>Risma Yulia Veronica Marpaung - 2104063</li>
 <li>Sri Lestari - 2101237</li>
-
 </ol>
 
 <h2>Fitur yang ditampilkan</h2>
@@ -42,6 +42,7 @@
 <h2>Class</h2>
 
 <h2>ERD</h2>
+<img alt="ERD" src="https://user-images.githubusercontent.com/113372447/210391530-6f187558-6eff-409d-9333-5b06f4b404a3.png">
 
 <h2>Manual Book</h2>
 dapat diakses pada tautan: <strong>https://bit.ly/ManualBook-WhackaMole</strong>
